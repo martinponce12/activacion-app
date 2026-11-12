@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Activación</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#1f4d3a">
+<style>
+:root{--bg:#f3f1ec;--cd:#fff;--tx:#1b2420;--mu:#6a7570;--pr:#1f4d3a;--pt:#fff;--ok:#2e7d4f;--ko:#c0392b;--bd:#d9d6cd;--tr:#e6e3da}
+@media(prefers-color-scheme:dark){:root{--bg:#121714;--cd:#1b231f;--tx:#e9eee9;--mu:#9aa79f;--pr:#7fd1a0;--pt:#0c1a12;--ok:#5fc489;--ko:#ef7a6c;--bd:#2c3731;--tr:#29322d}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.4 system-ui,"Segoe UI",sans-serif;background:var(--bg);color:var(--tx);padding:0 0 78px}
+header{display:flex;gap:8px;align-items:center;padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));background:var(--pr);color:var(--pt)}
+header b{flex:1;font-size:17px}header select{max-width:46%}
+main{max-width:920px;margin:0 auto;padding:12px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--cd);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;color:var(--mu);padding:10px 2px;font:inherit;font-size:12px}
+nav button.on{color:var(--pr);font-weight:700;box-shadow:inset 0 3px var(--pr)}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:12px;margin:0 0 12px}
+h3{margin:0 0 8px;font-size:16px}h4{margin:12px 0 6px}
+input,select,textarea,button{font:inherit;color:var(--tx);background:var(--cd);border:1px solid var(--bd);border-radius:6px;padding:9px;min-width:0}
+header select{background:var(--cd)}
+input[type=checkbox]{width:auto}textarea{width:100%}
+.fl{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}.fl>*{flex:1 1 130px}
+.fm label{display:block;margin:8px 0 2px;color:var(--mu);font-size:13px}.fm select,.fm input,.fm textarea{width:100%}
+button{cursor:pointer}button.pr{background:var(--pr);color:var(--pt);border-color:var(--pr)}
+button.big{width:100%;padding:16px;font-size:17px;font-weight:700;color:#fff;border:0}
+.g{color:var(--ok)}.r{color:var(--ko)}.mu{color:var(--mu)}
+button.big.g{background:var(--ok)}button.big.r{background:var(--ko)}
+.tr{height:10px;background:var(--tr);border-radius:5px;overflow:hidden;display:flex}.tr i{display:block;height:100%;background:var(--pr)}
+.tr i.g{background:var(--ok)}.tr i.r{background:var(--ko)}
+.ln{margin:10px 0 0;padding-top:8px;border-top:1px solid var(--bd)}.ln span{font-weight:600}
+small{display:block;color:var(--mu);margin-top:3px}p{margin:6px 0}
+.br{display:grid;grid-template-columns:110px 1fr 56px;gap:8px;align-items:center;margin:6px 0}.br small{margin:0;text-align:right}
+.hr{display:flex;gap:8px;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--bd)}
+.hr button{padding:6px 10px}
+.sc{overflow-x:auto}table{border-collapse:collapse}td,th{padding:3px;text-align:left;font-weight:400}td input{width:84px}
+#lg{max-width:340px;margin:12vh auto;padding:16px}#lg input,#lg button{width:100%;margin:5px 0}
+#t{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 14px;border-radius:20px;opacity:0;transition:opacity .2s;pointer-events:none}
+#t.on{opacity:1}[hidden]{display:none!important}
+</style></head><body>
+<p id="ld" class="mu" style="text-align:center;margin-top:20vh">Cargando…</p>
+<div id="lg" class="card" hidden><h3>Activación</h3>
+<input id="em" type="email" placeholder="Email" autocomplete="username"><input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password">
+<button class="pr" data-a="in">Ingresar</button><button data-a="up">Crear cuenta</button><button data-a="gg">Continuar con Google</button><button data-a="fp">Olvidé mi contraseña</button><p id="er" class="r"></p></div>
+<div id="ap" hidden>
+<header><b>Activación</b><select id="ps"></select><button data-a="out">Salir</button></header>
+<main id="v"></main>
+<nav><button data-a="tab" data-t="res">📊<br>Resumen</button><button data-a="tab" data-t="car">➕<br>Cargar</button><button data-a="tab" data-t="his">🕘<br>Historial</button><button data-a="tab" data-t="rep">📈<br>Reportes</button><button data-a="tab" data-t="cfg">⚙️<br>Config</button></nav></div>
+<div id="t"></div>
+<script type="module">
+const ld=document.querySelector('#ld'),fail=m=>{if(ld.hidden)return;ld.innerHTML='<b style="color:#c0392b">No se pudo iniciar la app.</b><br>'+String(m).replace(/</g,'&lt;')};
+addEventListener('error',x=>fail(x.message));addEventListener('unhandledrejection',x=>fail(x.reason&&x.reason.message||x.reason));
+setTimeout(()=>fail('Firebase no respondió en 8 segundos. Revisá la configuración pegada en FB, que el dominio esté autorizado en Authentication y que tu red permita googleapis.com.'),8000);
+let initializeApp,initializeAuth,indexedDBLocalPersistence,browserLocalPersistence,browserPopupRedirectResolver,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,GoogleAuthProvider,signInWithPopup,signOut,sendPasswordResetEmail,initializeFirestore,persistentLocalCache,persistentMultipleTabManager,collection,doc,setDoc,deleteDoc,updateDoc,onSnapshot,query,where;
+try{
+const M=await import("./fb.js");
+({initializeApp,initializeAuth,indexedDBLocalPersistence,browserLocalPersistence,browserPopupRedirectResolver,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,GoogleAuthProvider,signInWithPopup,signOut,sendPasswordResetEmail,initializeFirestore,persistentLocalCache,persistentMultipleTabManager,collection,doc,setDoc,deleteDoc,updateDoc,onSnapshot,query,where}=M);
+}catch(x){const l=document.querySelector("#ld");l.innerHTML="<b>No se pudo cargar fb.js.</b><br>Verificá que el archivo esté en la misma carpeta que index.html.<br><small>"+x.message+"</small>";throw x}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDJ6OMMbHa9-Ff1JEghPEBUoVknFUGvFbk",
+  authDomain: "activacion-app.firebaseapp.com",
+  projectId: "activacion-app",
+  storageBucket: "activacion-app.firebasestorage.app",
+  messagingSenderId: "244466555065",
+  appId: "1:244466555065:web:e96e03fb39a02403fd2368"
+};
+
+if(FB.apiKey==="PEGAR"){document.querySelector("#ld").innerHTML="<b>Falta la configuración de Firebase.</b><br>Pegá tus datos en la constante FB de index.html.";throw new Error("config")}
+const app=initializeApp(FB),auth=initializeAuth(app,{persistence:[indexedDBLocalPersistence,browserLocalPersistence]}),
+db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
+const $=s=>document.querySelector(s),
+e=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),
+by=(a,b)=>(a.nombre||'').localeCompare(b.nombre||''),
+today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10),
+opt=(L,s)=>L.map(x=>`<option value="${x.id}"${x.id===s?' selected':''}>${e(x.nombre)}</option>`).join(''),
+DIAS=['','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'],
+dopt=s=>DIAS.map(d=>`<option${d===s?' selected':''}>${d}</option>`).join('');
+const S={user:null,acts:[],cats:[],cli:[],per:[],objs:[],regs:[],pid:localStorage.pid||'',tab:'res',f:{}};
+const dep={res:['acts','cats','objs','regs'],car:['acts','cats','cli'],his:['acts','cats','cli','regs'],rep:['acts','cats','objs','regs'],cfg:['acts','cats','cli','per','objs']};
+const toast=m=>{const t=$('#t');t.textContent=m;t.classList.add('on');clearTimeout(t.k);t.k=setTimeout(()=>t.classList.remove('on'),2200)};
+const er=()=>toast('Sin permisos o sin conexión');
+const U=n=>collection(db,'users',S.user.uid,n),D=(n,i)=>doc(db,'users',S.user.uid,n,i);
+
+/* ---- render con coalescing y firma: solo redibuja si cambió algo de esa pestaña ---- */
+let q,LS='';
+const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(render)};
+const force=()=>{LS='';go()};
+function render(){
+ if(!S.user)return;
+ const s=S.tab+S.pid+JSON.stringify(dep[S.tab].map(k=>S[k]));
+ $('#ps').innerHTML=opt(S.per.slice().sort((a,b)=>b.desde.localeCompare(a.desde)),S.pid);
+ document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===S.tab));
+ if(s===LS)return;LS=s;$('#v').innerHTML=V[S.tab]();
+}
+
+/* ---- datos ---- */
+const un=[];let uR,kR;
+const listen=(n,k)=>un.push(onSnapshot(U(n),s=>{S[k]=s.docs.map(d=>({id:d.id,...d.data()}));if(k==='per')perFix();go()},er));
+function perFix(){
+ if(!S.per.some(p=>p.id===S.pid)){const t=today();S.pid=(S.per.find(p=>p.desde<=t&&t<=p.hasta)||S.per.slice().sort((a,b)=>b.desde.localeCompare(a.desde))[0]||{}).id||''}
+ watchRegs();
+}
+function watchRegs(){
+ const p=S.per.find(x=>x.id===S.pid),k=p?p.desde+p.hasta:'';
+ if(k===kR)return;kR=k;uR&&uR();S.regs=[];uR=null;
+ if(p&&p.desde&&p.hasta)uR=onSnapshot(query(U('regs'),where('fecha','>=',p.desde),where('fecha','<=',p.hasta)),s=>{S.regs=s.docs.map(d=>({id:d.id,...d.data()}));go()},er);
+}
+onAuthStateChanged(auth,u=>{$('#ld').hidden=true;S.user=u;$('#lg').hidden=!!u;$('#ap').hidden=!u;
+ if(u){listen('acts','acts');listen('cats','cats');listen('clientes','cli');listen('periodos','per');listen('objs','objs');force()}
+ else{LS='';un.splice(0).forEach(f=>f());uR&&uR();uR=kR=null;Object.assign(S,{acts:[],cats:[],cli:[],per:[],objs:[],regs:[]})}});
+
+/* ---- cálculos ---- */
+const O=()=>{const o={};S.objs.filter(x=>x.perId===S.pid).forEach(x=>o[x.catId+'_'+(x.actId||'G')]=x.meta||0);return o};
+const meta=(o,c,a)=>a?o[c+'_'+a]||0:o[c+'_G']||S.acts.reduce((s,x)=>s+(o[c+'_'+x.id]||0),0);
+const stat=(rs,m,min)=>{const n=rs.length,ok=rs.filter(r=>r.ok).length,p=n?Math.round(ok*100/n):0;return{n,ok,p,m,min,pen:Math.max(m-n,0),pass:!min||p>=min}};
+const actsV=()=>S.acts.filter(a=>a.activo!==false||S.regs.some(r=>r.actId===a.id)).sort(by);
+const blk=(nm,s,big)=>`<div class="${big?'':'ln'}">${big?'':`<span>${e(nm)}</span>`}<div class="tr"><i style="width:${s.m?Math.min(100,s.n*100/s.m):0}%"></i></div><small>${s.n}${s.m?' de '+s.m:''} · <span class="g">✔ ${s.ok}</span> <span class="r">✖ ${s.n-s.ok}</span> · <b class="${s.pass?'g':'r'}">${s.p}% aprobación</b>${s.min?' (mín. '+s.min+'%)':''}${s.m?' · faltan '+s.pen:''}</small></div>`;
+
+/* ---- vistas ---- */
+const V={
+res(){
+ if(!S.pid)return'<p class="mu">Creá un período en Config para empezar.</p>';
+ const o=O(),A=actsV();
+ return S.cats.slice().sort(by).map(c=>{
+  const rs=S.regs.filter(r=>r.catId===c.id),m=meta(o,c.id,'');if(!rs.length&&!m)return'';
+  const rows=A.map(a=>{const r2=rs.filter(r=>r.actId===a.id),m2=meta(o,c.id,a.id);return r2.length||m2?blk(a.nombre,stat(r2,m2,c.min)):''}).join('');
+  return`<section class="card"><h3>${e(c.nombre)}</h3>${blk('',stat(rs,m,c.min),1)}${rows}</section>`}).join('')||'<p class="mu">Todavía no hay objetivos ni registros en este período.</p>'},
+car(){
+ const f=S.f,A=S.acts.filter(a=>a.activo!==false).sort(by),C=S.cli.slice().sort(by);
+ return`<section class="card fm"><h3>Cargar ejecución</h3>
+ <label>Fecha</label><input id="rf" type="date" value="${f.rf||today()}">
+ <label>Activador</label><select id="ra"><option value="">Elegir…</option>${opt(A,f.ra)}</select>
+ <label>Categoría</label><select id="rc"><option value="">Elegir…</option>${opt(S.cats.slice().sort(by),f.rc)}</select>
+ <label>Cliente / punto de venta</label><select id="rl"><option value="">Sin cliente</option>${opt(C,f.rl)}</select>
+ <label>Observaciones</label><textarea id="ro" rows="2">${e(f.ro)}</textarea>
+ <div class="fl" style="margin-top:12px"><button class="big g" data-a="reg" data-ok="1">✔ Aprobada</button><button class="big r" data-a="reg" data-ok="0">✖ Desaprobada</button></div>
+ <details style="margin-top:12px"><summary>Cliente nuevo</summary>${cliForm('q')}</details></section>`},
+his(){
+ const nm=(L,i)=>(L.find(x=>x.id===i)||{}).nombre||'—';
+ const L=S.regs.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)||b.ts-a.ts).slice(0,200);
+ return`<section class="card"><h3>Historial (${S.regs.length})</h3>${L.map(r=>`<div class="hr"><div><b class="${r.ok?'g':'r'}">${r.ok?'✔ Aprobada':'✖ Desaprobada'}</b> · ${r.fecha}<small>${e(nm(S.acts,r.actId))} · ${e(nm(S.cats,r.catId))}${r.cliId?' · '+e(nm(S.cli,r.cliId)):''}${r.obs?'<br>'+e(r.obs):''}</small></div><div><button data-a="tg" data-id="${r.id}">Cambiar</button> <button data-a="del" data-id="${r.id}">🗑</button></div></div>`).join('')||'<p class="mu">Sin registros en este período.</p>'}</section>`},
+rep(){
+ if(!S.pid)return'<p class="mu">Creá un período en Config.</p>';
+ const o=O(),br=(l,a,b,mx,t)=>`<div class="br"><span>${e(l)}</span><div class="tr"><i class="g" style="width:${a*100/mx}%"></i><i class="r" style="width:${b*100/mx}%"></i></div><small>${t}</small></div>`;
+ const cats=S.cats.slice().sort(by).map(c=>{const rs=S.regs.filter(r=>r.catId===c.id),m=meta(o,c.id,'');if(!rs.length&&!m)return'';const ok=rs.filter(r=>r.ok).length;return br(c.nombre,ok,rs.length-ok,Math.max(m,rs.length)||1,rs.length+(m?'/'+m:''))}).join('');
+ const act=actsV().map(a=>{const rs=S.regs.filter(r=>r.actId===a.id),ok=rs.filter(r=>r.ok).length;return[a,rs.length,ok]}).sort((x,y)=>y[1]-x[1]);
+ const mx=Math.max(1,...act.map(x=>x[1])),days={};S.regs.forEach(r=>{(days[r.fecha]=days[r.fecha]||[0,0])[r.ok?0:1]++});
+ const D=Object.keys(days).sort(),md=Math.max(1,...D.map(d=>days[d][0]+days[d][1]));
+ return`<section class="card"><h3>Avance por categoría</h3>${cats||'<p class="mu">Sin datos.</p>'}</section>
+ <section class="card"><h3>Ranking de activadores</h3>${act.map(([a,n,ok])=>br(a.nombre,ok,n-ok,mx,n)).join('')||'<p class="mu">Sin datos.</p>'}</section>
+ <section class="card"><h3>Evolución diaria</h3>${D.map(d=>br(d.slice(5),days[d][0],days[d][1],md,days[d][0]+days[d][1])).join('')||'<p class="mu">Sin datos.</p>'}</section>
+ <button class="pr" data-a="csv">Exportar CSV del período</button>`},
+cfg(){
+ const p=S.per.find(x=>x.id===S.pid),o=O(),A=S.acts.slice().sort(by),AV=A.filter(a=>a.activo!==false),C=S.cats.slice().sort(by);
+ const i=(c,v,t='text',x='')=>`<input data-c="${c}" type="${t}" value="${e(v)}" ${x}>`;
+ const zonas=[...new Set(S.cli.map(c=>c.zona).filter(Boolean))].map(z=>`<option value="${e(z)}">`).join('');
+ return`<section class="card"><h3>Período</h3>${p?`<div class="fl">${i('periodos:'+p.id+':nombre',p.nombre)}${i('periodos:'+p.id+':desde',p.desde,'date')}${i('periodos:'+p.id+':hasta',p.hasta,'date')}<button data-a="dper">Eliminar</button></div>`:'<p class="mu">Todavía no hay períodos.</p>'}
+ <h4>Nuevo período</h4><div class="fl"><input id="pn" placeholder="Nombre"><input id="pd" type="date"><input id="ph" type="date"></div>
+ <label><input type="checkbox" id="pc" ${p?'checked':''}> Copiar objetivos del período seleccionado</label><p><button class="pr" data-a="nper">Crear período</button></p></section>
+ <section class="card"><h3>Activadores</h3>${A.map(a=>`<div class="fl">${i('acts:'+a.id+':nombre',a.nombre)}<label style="flex:0 0 80px"><input type="checkbox" data-c="acts:${a.id}:activo" ${a.activo!==false?'checked':''}> Activo</label></div>`).join('')}
+ <div class="fl"><input id="xa" placeholder="Nuevo activador"><button data-a="nact">Agregar</button></div></section>
+ <section class="card"><h3>Categorías</h3>${C.map(c=>`<div class="fl">${i('cats:'+c.id+':nombre',c.nombre)}${i('cats:'+c.id+':min',c.min??'','number','placeholder="% aprob. mín." min=0 max=100')}</div>`).join('')}
+ <div class="fl"><input id="xc" placeholder="Nueva categoría"><input id="xm" type="number" placeholder="% aprob. mín."><button data-a="ncat">Agregar</button></div></section>
+ <section class="card"><h3>Objetivos del período</h3>${p?`<div class="sc"><table><tr><th>Categoría</th><th>Grupal</th>${AV.map(a=>`<th>${e(a.nombre)}</th>`).join('')}</tr>${C.map(c=>`<tr><td>${e(c.nombre)}</td>${['G',...AV.map(a=>a.id)].map(a=>`<td>${i('obj:'+c.id+':'+a,o[c.id+'_'+a]||'','number','min=0')}</td>`).join('')}</tr>`).join('')}</table></div><small>Si dejás vacío el grupal, se suman los individuales.</small>`:'<p class="mu">Elegí o creá un período.</p>'}</section>
+ <section class="card"><h3>Clientes</h3><datalist id="zl">${zonas}</datalist>${cliForm('n')}<h4>Cargados (${S.cli.length})</h4>${S.cli.slice().sort(by).map(c=>`<div class="fl">${i('clientes:'+c.id+':nombre',c.nombre)}${i('clientes:'+c.id+':zona',c.zona,'text','list="zl" placeholder="Zona"')}${i('clientes:'+c.id+':dir',c.dir,'text','placeholder="Dirección"')}<select data-c="clientes:${c.id}:dia">${dopt(c.dia)}</select><select data-c="clientes:${c.id}:actId"><option value="">Activador…</option>${opt(A,c.actId)}</select></div>`).join('')}</section>`}
+};
+const cliForm=p=>`<div class="fl"><input id="${p}n" placeholder="Nombre del cliente"><input id="${p}z" list="zl" placeholder="Zona"><input id="${p}d" placeholder="Dirección"><select id="${p}v">${dopt('')}</select><select id="${p}a"><option value="">Activador…</option>${opt(S.acts.filter(a=>a.activo!==false).sort(by))}</select><button class="pr" data-a="ncli" data-p="${p}">Guardar cliente</button></div>${p==='q'?`<datalist id="zl">${[...new Set(S.cli.map(c=>c.zona).filter(Boolean))].map(z=>`<option value="${e(z)}">`).join('')}</datalist>`:''}`;
+
+/* ---- acciones ---- */
+const add=(col,d)=>{const r=doc(U(col));setDoc(r,d);return r.id};
+const aerr=x=>$('#er').textContent={'auth/email-already-in-use':'Ese email ya tiene cuenta: ingresá o recuperá la contraseña','auth/weak-password':'La contraseña debe tener al menos 6 caracteres','auth/invalid-email':'El email no es válido','auth/missing-password':'Escribí la contraseña','auth/popup-closed-by-user':'','auth/cancelled-popup-request':'','auth/popup-blocked':'El navegador bloqueó la ventana de Google'}[x.code]??'Email o contraseña incorrectos';
+const A={
+ in:async()=>{try{await signInWithEmailAndPassword(auth,$('#em').value,$('#pw').value)}catch(x){aerr(x)}},
+ up:async()=>{try{await createUserWithEmailAndPassword(auth,$('#em').value,$('#pw').value)}catch(x){aerr(x)}},
+ gg:async()=>{try{await signInWithPopup(auth,new GoogleAuthProvider(),browserPopupRedirectResolver)}catch(x){aerr(x)}},
+ fp:async()=>{const m=$('#em').value;if(!m)return $('#er').textContent='Escribí tu email arriba';try{await sendPasswordResetEmail(auth,m);$('#er').textContent='Te enviamos un mail para restablecerla'}catch{$('#er').textContent='No se pudo enviar el mail'}},
+ out:()=>signOut(auth),
+ tab:b=>{S.tab=b.dataset.t;go()},
+ reg:b=>{const v=x=>$('#'+x).value;if(!v('ra')||!v('rc'))return toast('Elegí activador y categoría');
+  add('regs',{fecha:v('rf')||today(),ts:Date.now(),actId:v('ra'),catId:v('rc'),cliId:v('rl'),ok:b.dataset.ok==='1',obs:v('ro').trim()});
+  S.f.ro='';$('#ro').value='';toast(b.dataset.ok==='1'?'Aprobada guardada':'Desaprobada guardada')},
+ tg:b=>{const r=S.regs.find(x=>x.id===b.dataset.id);updateDoc(D('regs',r.id),{ok:!r.ok})},
+ del:b=>{if(confirm('¿Eliminar este registro?'))deleteDoc(D('regs',b.dataset.id))},
+ ncli:b=>{const p=b.dataset.p,g=i=>$('#'+p+i).value.trim();if(!g('n'))return toast('Falta el nombre del cliente');
+  const id=add('clientes',{nombre:g('n'),zona:g('z'),dir:g('d'),dia:g('v'),actId:g('a')});if(p==='q')S.f.rl=id;toast('Cliente guardado')},
+ nact:()=>{const n=$('#xa').value.trim();if(n)add('acts',{nombre:n,activo:true})},
+ ncat:()=>{const n=$('#xc').value.trim();if(n)add('cats',{nombre:n,min:$('#xm').value===''?null:+$('#xm').value})},
+ nper:()=>{const n=$('#pn').value.trim(),d=$('#pd').value,h=$('#ph').value;if(!n||!d||!h||h<d)return toast('Completá nombre y fechas válidas');
+  const id=add('periodos',{nombre:n,desde:d,hasta:h});
+  if($('#pc').checked&&S.pid)S.objs.filter(x=>x.perId===S.pid).forEach(({id:_,...x})=>setDoc(D('objs',id+'_'+x.catId+'_'+(x.actId||'G')),{...x,perId:id}));
+  S.pid=localStorage.pid=id;force()},
+ dper:()=>{if(!confirm('¿Eliminar este período y sus objetivos? Los registros no se borran.'))return;S.objs.filter(x=>x.perId===S.pid).forEach(x=>deleteDoc(D('objs',x.id)));deleteDoc(D('periodos',S.pid))},
+ csv:()=>{const nm=(L,i)=>(L.find(x=>x.id===i)||{}).nombre||'',p=S.per.find(x=>x.id===S.pid)||{};
+  const rows=[['Fecha','Activador','Categoría','Cliente','Zona','Resultado','Observaciones'],...S.regs.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(r=>{const c=S.cli.find(x=>x.id===r.cliId)||{};return[r.fecha,nm(S.acts,r.actId),nm(S.cats,r.catId),c.nombre||'',c.zona||'',r.ok?'Aprobada':'Desaprobada',r.obs||'']})];
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+rows.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(';')).join('\r\n')],{type:'text/csv'}));a.download='activacion_'+(p.nombre||'periodo')+'.csv';a.click()}
+};
+document.addEventListener('click',x=>{const b=x.target.closest('[data-a]');if(b)A[b.dataset.a](b)});
+document.addEventListener('input',x=>{const t=x.target;if(t.id&&t.id[0]==='r')S.f[t.id]=t.value});
+document.addEventListener('keydown',x=>{if(x.key==='Enter'&&x.target.id==='pw')A.in()});
+document.addEventListener('change',x=>{const t=x.target;
+ if(t.id==='ps'){S.pid=localStorage.pid=t.value;watchRegs();return force()}
+ if(t.id==='rl'){const c=S.cli.find(k=>k.id===t.value);if(c&&c.actId){$('#ra').value=S.f.ra=c.actId}return}
+ const c=t.dataset.c;if(!c)return;const[col,id,f]=c.split(':');
+ const v=t.type==='checkbox'?t.checked:t.type==='number'?(t.value===''?null:+t.value):t.value;
+ if(col==='obj'){setDoc(D('objs',S.pid+'_'+id+'_'+f),{perId:S.pid,catId:id,actId:f==='G'?'':f,meta:v||0})}
+ else updateDoc(D(col,id),{[f]:v})});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
