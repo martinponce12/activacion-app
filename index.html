@@ -48,9 +48,10 @@ small{display:block;color:var(--mu);margin-top:3px}p{margin:6px 0}
 <nav><button data-a="tab" data-t="res">📊<br>Resumen</button><button data-a="tab" data-t="car">➕<br>Cargar</button><button data-a="tab" data-t="his">🕘<br>Historial</button><button data-a="tab" data-t="rep">📈<br>Reportes</button><button data-a="tab" data-t="cfg">⚙️<br>Config</button></nav></div>
 <div id="t"></div>
 <script type="module">
-const ld=document.querySelector('#ld'),fail=m=>{if(ld.hidden)return;ld.innerHTML='<b style="color:#c0392b">No se pudo iniciar la app.</b><br>'+String(m).replace(/</g,'&lt;')};
-addEventListener('error',x=>fail(x.message));addEventListener('unhandledrejection',x=>fail(x.reason&&x.reason.message||x.reason));
-setTimeout(()=>fail('Firebase no respondió en 8 segundos. Revisá la configuración pegada en FB, que el dominio esté autorizado en Authentication y que tu red permita googleapis.com.'),8000);
+const ld=document.querySelector('#ld');let bad=0;
+const fail=m=>{if(ld.hidden)return;bad=1;ld.innerHTML='<b style="color:#c0392b">No se pudo iniciar la app.</b><br>'+String(m).replace(/</g,'&lt;')};
+addEventListener('error',x=>fail(x.message));addEventListener('unhandledrejection',x=>fail((x.reason&&(x.reason.code||'')+' '+x.reason.message)||x.reason));
+setTimeout(()=>{if(ld.hidden||bad)return;let c='';try{c=' Config leída: projectId='+FB.projectId+' · authDomain='+FB.authDomain+' · apiKey='+String(FB.apiKey).slice(0,6)+'…'}catch{}fail('Firebase no respondió en 8 segundos.'+c)},8000);
 let initializeApp,initializeAuth,indexedDBLocalPersistence,browserLocalPersistence,browserPopupRedirectResolver,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,GoogleAuthProvider,signInWithPopup,signOut,sendPasswordResetEmail,initializeFirestore,persistentLocalCache,persistentMultipleTabManager,collection,doc,setDoc,deleteDoc,updateDoc,onSnapshot,query,where;
 try{
 const M=await import("./fb.js");
