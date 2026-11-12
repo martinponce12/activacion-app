@@ -58,7 +58,7 @@ const M=await import("./fb.js");
 ({initializeApp,initializeAuth,indexedDBLocalPersistence,browserLocalPersistence,browserPopupRedirectResolver,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,GoogleAuthProvider,signInWithPopup,signOut,sendPasswordResetEmail,initializeFirestore,persistentLocalCache,persistentMultipleTabManager,collection,doc,setDoc,deleteDoc,updateDoc,onSnapshot,query,where}=M);
 }catch(x){const l=document.querySelector("#ld");l.innerHTML="<b>No se pudo cargar fb.js.</b><br>Verificá que el archivo esté en la misma carpeta que index.html.<br><small>"+x.message+"</small>";throw x}
 
-const firebaseConfig = {
+const FB = {
   apiKey: "AIzaSyDJ6OMMbHa9-Ff1JEghPEBUoVknFUGvFbk",
   authDomain: "activacion-app.firebaseapp.com",
   projectId: "activacion-app",
